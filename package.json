@@ -1,0 +1,29 @@
+{
+  "name": "petmood",
+  "version": "1.0.0",
+  "description": "Este es el índice principal de la aplicación",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "expo": "^52.0.7",
+    "expo-router": "~4.0.6",
+    "expo-splash-screen": "~0.29.11",
+    "expo-status-bar": "~2.0.0",
+    "expo-camera": "~16.0.6",
+    "react": "^18.2.0",
+    "react-native": "^0.76.2",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-native": "^0.73.0"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "petmood",
+    "slug": "petmood",
+    "version": "1.0.0",
+    "description": "Este es el índice principal de la aplicación",
+    "platforms": ["ios", "android", "web"],
+    "ios": {
+      "infoPlist": {
+        "NSCameraUsageDescription": "Esta aplicación necesita acceso a la cámara para tomar fotos de tu mascota."
+      }
+    },
+    "android": {
+      "permissions": ["CAMERA"]
+    },
+     "newArchEnabled": true
+  }
+}
