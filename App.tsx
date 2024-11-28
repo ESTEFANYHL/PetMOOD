@@ -1,93 +1,104 @@
+// Importamos los módulos necesarios de React y React Native
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Animated, Easing } from 'react-native';
+import { 
+  View, // Componente para crear una vista contenedora
+  Text, // Componente para mostrar texto
+  StyleSheet, // Herramienta para estilizar los componentes
+  TouchableOpacity, // Componente que hace un área táctil que responde a toques
+  Dimensions, // Herramienta que permite obtener las dimensiones de la pantalla
+  Animated, // Herramienta para crear animaciones fluidas
+  Easing, // Función que facilita transiciones suaves en las animaciones
+  Modal, // Componente para crear un modal (ventana emergente)
+  ScrollView, // Componente para habilitar desplazamiento en vistas largas
+  Image // Componente para mostrar imágenes
+} from 'react-native';
 
-// Obtener las dimensiones de la pantalla
+// Extraemos las dimensiones de la pantalla del dispositivo
 const { width, height } = Dimensions.get('window');
 
-// Generar posiciones aleatorias para las huellas
+// Función para generar posiciones aleatorias para las huellas
 const generateFootprints = () => {
-  const footprints = [];
+  const footprints = []; // Creamos un array vacío donde guardaremos las huellas
+  
+  // Generamos 80 huellas con posiciones y tamaños aleatorios
   for (let i = 0; i < 80; i++) {
-    // Generar las huellas con propiedades aleatorias
     footprints.push({
       left: Math.random() * width, // Posición horizontal aleatoria dentro del ancho de la pantalla
-      top: Math.random() * height, // Posición vertical aleatoria dentro de la altura de la pantalla
-      size: 20 + Math.random() * 30, // Tamaño de la huella, entre 20 y 50
-      opacity: Math.random() * 0.15 + 0.6, // Opacidad aleatoria entre 0.6 y 0.75
+      top: Math.random() * height, // Posición vertical aleatoria dentro del alto de la pantalla
+      size: 20 + Math.random() * 30, // Tamaño aleatorio entre 20 y 50
+      opacity: Math.random() * 0.15 + 0.6, // Opacidad aleatoria entre 0.6 y 0.75 (para hacer las huellas más sutiles)
     });
   }
-  return footprints; // Devolver el array con las huellas generadas
+  return footprints; // Retornamos el array de huellas generadas
 };
 
 const App = () => {
-  // Estado para almacenar las huellas generadas al azar
   const [footprints] = useState(generateFootprints());
-
-  // Referencias animadas para controlar la animación de cada huella y del icono del perro
+  const [modalVisible, setModalVisible] = useState(true); // Controla la visibilidad del modal
   const animatedValues = useRef(footprints.map(() => new Animated.Value(0))).current;
-  const iconBounce = useRef(new Animated.Value(0)).current; // Valor animado para el rebote del ícono del perro
-  const scaleAnim = useRef(new Animated.Value(1)).current; // Valor animado para el botón de la cámara
+  const iconBounce = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // Animar las huellas
     animatedValues.forEach((animatedValue) => {
       Animated.loop(
-        Animated.sequence([
+        Animated.sequence([ 
           Animated.timing(animatedValue, {
-            toValue: 1, // Animar al valor 1
-            duration: 10000 + Math.random() * 5000, // Duración aleatoria entre 10 y 15 segundos
-            easing: Easing.inOut(Easing.ease), // Efecto de suavizado de entrada y salida
-            useNativeDriver: true, // Usar el controlador nativo para mejor rendimiento
+            toValue: 1,
+            duration: 10000 + Math.random() * 5000,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
           }),
           Animated.timing(animatedValue, {
-            toValue: 0, // Volver al valor 0
-            duration: 10000 + Math.random() * 5000, // Duración aleatoria entre 10 y 15 segundos
-            easing: Easing.inOut(Easing.ease), // Efecto de suavizado de entrada y salida
-            useNativeDriver: true, // Usar el controlador nativo para mejor rendimiento
+            toValue: 0,
+            duration: 10000 + Math.random() * 5000,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
           }),
-        ]),
-      ).start(); // Iniciar la animación en bucle
+        ])
+      ).start();
     });
 
-    // Animación continua de rebote del ícono del perro sin reinicio abrupto
     const bounceAnimation = () => {
-      Animated.sequence([
+      Animated.sequence([ 
         Animated.timing(iconBounce, {
-          toValue: 8, // Desplazarse hacia arriba
-          duration: 1900, // Duración de 1.9 segundos
-          easing: Easing.inOut(Easing.ease), // Suavizado de entrada y salida
-          useNativeDriver: true, // Usar el controlador nativo
+          toValue: 8,
+          duration: 1900,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
         }),
         Animated.timing(iconBounce, {
-          toValue: -8, // Desplazarse hacia abajo
-          duration: 1900, // Duración de 1.9 segundos
-          easing: Easing.inOut(Easing.ease), // Suavizado de entrada y salida
-          useNativeDriver: true, // Usar el controlador nativo
+          toValue: -8,
+          duration: 1900,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
         }),
       ]).start(() => {
-        // Reiniciar la animación para un movimiento continuo
         bounceAnimation();
       });
     };
 
-    bounceAnimation(); // Iniciar la animación de rebote
+    bounceAnimation();
   }, [animatedValues]);
 
-  // Animación al presionar el botón
   const onPressIn = () => {
     Animated.spring(scaleAnim, {
-      toValue: 0.95, // Reducir ligeramente el tamaño
-      useNativeDriver: true, // Usar el controlador nativo
+      toValue: 0.95,
+      useNativeDriver: true,
     }).start();
   };
 
   const onPressOut = () => {
     Animated.spring(scaleAnim, {
-      toValue: 1, // Volver al tamaño original
-      friction: 3, // Fricción para controlar el rebote
-      tension: 40, // Tensión para controlar la velocidad
-      useNativeDriver: true, // Usar el controlador nativo
+      toValue: 1,
+      friction: 3,
+      tension: 40,
+      useNativeDriver: true,
     }).start();
+  };
+
+  const handleAccept = () => {
+    setModalVisible(false); // Cerrar el modal al aceptar
   };
 
   return (
@@ -95,56 +106,41 @@ const App = () => {
       {/* Renderizar las huellas */}
       {footprints.map((footprint, index) => (
         <Animated.Text
-          key={index} // Clave única para cada huella
-          style={[
-            styles.footprint,
-            {
-              left: footprint.left, // Posición horizontal de la huella
-              top: footprint.top, // Posición vertical de la huella
-              fontSize: footprint.size, // Tamaño de la huella
-              opacity: footprint.opacity, // Opacidad de la huella
-              transform: [
-                {
-                  translateY: animatedValues[index].interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 20], // Movimiento sutil de arriba a abajo
-                  }),
-                },
-                {
-                  translateX: animatedValues[index].interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 15], // Movimiento sutil hacia la derecha e izquierda
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          🐾{/* Emoji de huella */}
+          key={index}
+          style={[styles.footprint, {
+            left: footprint.left,
+            top: footprint.top,
+            fontSize: footprint.size,
+            opacity: footprint.opacity,
+            transform: [
+              { translateY: animatedValues[index].interpolate({ inputRange: [0, 1], outputRange: [0, 20] }) },
+              { translateX: animatedValues[index].interpolate({ inputRange: [0, 1], outputRange: [0, 15] }) },
+            ],
+          }]}>
+          🐾
         </Animated.Text>
       ))}
 
       {/* Frame blanco translúcido */}
       <View style={styles.frame}>
-        {/* Título sin animación, con sombra */}
         <Text style={styles.title}>LAIKA</Text>
+        <Text style={styles.subtitle}>Entendiendo emociones, conectando corazones</Text>
 
-        {/* Eslogan con sombra */}
-        <Text style={styles.subtitle}>Conectando corazones, entendiendo emociones</Text>
-
-        {/* Ícono central del perro con animación de rebote continua */}
         <Animated.View style={{ transform: [{ translateY: iconBounce }] }}>
           <View style={styles.iconContainer}>
-            <Text style={styles.icon}>🐕{/* Emoji de perro */}</Text>
+            {/* Reemplazar el emoji con una imagen */}
+            <Image 
+              source={require('./LOGOO.png')} // Ruta de tu logo
+              style={styles.iconImage}
+            />
           </View>
         </Animated.View>
 
-        {/* Botón de Cámara con animación de pulso */}
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <TouchableOpacity
             style={styles.button}
-            onPressIn={onPressIn} // Animar cuando se presiona el botón
-            onPressOut={onPressOut} // Animar cuando se suelta el botón
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
           >
             <Text style={styles.buttonText}>ABRIR CÁMARA</Text>
           </TouchableOpacity>
@@ -152,103 +148,182 @@ const App = () => {
 
         {/* Aviso de privacidad y derechos reservados */}
         <View style={styles.footerContainer}>
-          <Text style={styles.privacyNotice}>AVISO DE PRIVACIDAD</Text>
-          <Text style={styles.footer}>©LAIKA 2024. TODOS LOS DERECHOS RESERVADOS.</Text>
+          <Text style={styles.footer}>
+            ©LAIKA 2024. TODOS LOS DERECHOS RESERVADOS.
+          </Text>
         </View>
       </View>
+
+      {/* Modal con los Términos y Condiciones */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Términos y Condiciones</Text>
+            <ScrollView contentContainerStyle={styles.scrollViewContent}>
+              <Text style={styles.termsText}>
+                <Text style={{ fontWeight: 'bold' }}>TÉRMINOS Y CONDICIONES Y AVISO DE PRIVACIDAD DE LAIKA{'\n\n'}</Text>
+                <Text style={{ fontWeight: 'bold' }}>CONECTANDO CORAZONES, ENTENDIENDO EMOCIONES{'\n\n'}</Text>
+                En LAIKA valoramos y respetamos la privacidad de nuestros usuarios. Estos Términos y Condiciones junto con nuestro Aviso de Privacidad describen cómo recopilamos, utilizamos y protegemos la información personal que nos proporcionas a través de nuestra aplicación.{'\n\n'}
+                <Text style={{ fontWeight: 'bold' }}>1. Responsable del Tratamiento de Datos Personales{'\n'}</Text>
+                LAIKA es una aplicación desarrollada para mejorar la calidad de vida de las mascotas y la interacción entre ellas y sus dueños. Somos responsables del tratamiento de los datos personales que recabamos de los usuarios. Nuestro objetivo principal es brindar un servicio que facilite la comprensión del comportamiento emocional y las necesidades de las mascotas, siempre respetando la privacidad y la protección de los datos.{'\n\n'}
+                <Text style={{ fontWeight: 'bold' }}>2. Información Recabada{'\n'}</Text>
+                No almacenamos datos personales como nombres, correos electrónicos ni contraseñas. LAIKA no cuenta con un sistema de registro o autenticación de usuarios, y no recabamos datos para crear perfiles personales. Únicamente recopilamos información de las imágenes cargadas en la aplicación para brindar nuestros servicios.{'\n\n'}
+                <Text style={{ fontWeight: 'bold' }}>3. Finalidades del Tratamiento de Datos{'\n'}</Text>
+                Los datos serán utilizados para los siguientes propósitos:{'\n\n'}
+                <Text style={{ fontWeight: 'bold' }}>Finalidades Primarias:{'\n'}</Text>
+                - Proveer los servicios de interpretación del comportamiento y emociones de la mascota.{'\n'}
+                - Emitir recomendaciones personalizadas para mejorar la calidad de vida de tu mascota.{'\n'}
+                - Generar reportes sobre el estado emocional de tu mascota.{'\n\n'}
+                <Text style={{ fontWeight: 'bold' }}>Finalidades Secundarias:{'\n'}</Text>
+                - Realizar encuestas de satisfacción para mejorar el servicio.{'\n'}
+                - Utilizar las imágenes que subas a la aplicación para entrenar y mejorar nuestra Inteligencia Artificial, con el fin de mejorar la precisión de la interpretación de emociones de las mascotas. Estas imágenes se emplearán exclusivamente para fines de entrenamiento y mejora del modelo.{'\n\n'}
+                <Text style={{ fontWeight: 'bold' }}>4. Protección de la Información{'\n'}</Text>
+                Nos comprometemos a mantener la confidencialidad y seguridad de tu información. Hemos implementado medidas técnicas y organizativas adecuadas para proteger la información contra pérdida, mal uso, acceso no autorizado, alteración y destrucción.{'\n\n'}
+                <Text style={{ fontWeight: 'bold' }}>5. Transferencia de Datos{'\n'}</Text>
+                No transferimos tus datos personales a terceros sin tu consentimiento previo, salvo para cumplir con obligaciones legales. En caso de realizar transferencias, siempre se te notificará con antelación.{'\n\n'}
+                <Text style={{ fontWeight: 'bold' }}>6. Derechos ARCO (Acceso, Rectificación, Cancelación, Oposición){'\n'}</Text>
+                Dado que no recabamos información personal, los derechos ARCO no son aplicables en esta plataforma. Sin embargo, si tienes preguntas sobre el uso de las imágenes proporcionadas, puedes contactarnos en: privacidad@laika.app.{'\n\n'}
+                <Text style={{ fontWeight: 'bold' }}>7. Condiciones de Uso{'\n'}</Text>
+                - <Text style={{ fontWeight: 'bold' }}>Uso de la Aplicación:</Text> LAIKA está diseñada para ayudar a los dueños de mascotas a interpretar el comportamiento emocional de sus mascotas. Al utilizar la aplicación, aceptas que cualquier sugerencia o información proporcionada es únicamente de referencia y no sustituye la atención veterinaria profesional.{'\n'}
+                - <Text style={{ fontWeight: 'bold' }}>Prohibiciones:</Text> Está prohibido el uso de la aplicación con fines ilícitos o que puedan dañar a terceros. La manipulación malintencionada de las imágenes o el uso no autorizado del contenido de la aplicación está estrictamente prohibido.{'\n'}
+                - <Text style={{ fontWeight: 'bold' }}>Responsabilidad del Usuario:</Text> Al utilizar la aplicación, el usuario se compromete a hacer un uso responsable y adecuado de la misma. La precisión del análisis de las emociones de las mascotas puede depender de varios factores, como la calidad de la imagen y el entorno en el que se encuentre la mascota.{'\n\n'}
+                <Text style={{ fontWeight: 'bold' }}>8. Modificaciones al Aviso de Privacidad y Términos y Condiciones{'\n'}</Text>
+                Este aviso de privacidad y los términos y condiciones pueden sufrir modificaciones, cambios o actualizaciones derivadas de nuevos requerimientos legales, de nuestras propias necesidades, de los servicios que ofrecemos, de nuestras prácticas de privacidad o de otros motivos. Te notificaremos a través de la aplicación o de nuestro sitio web sobre cualquier cambio significativo.{'\n\n'}
+                <Text style={{ fontWeight: 'bold' }}>9. Contacto{'\n'}</Text>
+                Si tienes preguntas o necesitas mayor información sobre nuestros Términos y Condiciones o nuestro Aviso de Privacidad, no dudes en contactarnos al correo: privacidad@laika.app.
+              </Text>
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.acceptButton}
+              onPress={handleAccept}
+            >
+              <Text style={styles.acceptButtonText}>Aceptar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
-// Estilos de la aplicación
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Ocupa todo el espacio disponible
-    backgroundColor: '#FFFFFF', // Fondo blanco
-    alignItems: 'center', // Alinear elementos horizontalmente al centro
-    justifyContent: 'center', // Alinear elementos verticalmente al centro
-    paddingHorizontal: 20, // Relleno horizontal
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
   },
   footprint: {
-    position: 'absolute', // Posicionar cada huella de forma absoluta
-    color: '#293855', // Azul oscuro para las huellas
+    position: 'absolute',
+    color: '#293855',
   },
   frame: {
-    width: '95%', // Ancho del frame
-    backgroundColor: 'rgba(255, 255, 255, 0.7)', // Frame blanco translúcido más transparente
-    borderRadius: 25, // Bordes redondeados
-    padding: 30, // Relleno interno del frame
-    alignItems: 'center', // Alinear elementos horizontalmente al centro
-    shadowColor: '#000', // Sombra para el frame
-    shadowOffset: { width: 0, height: 5 }, // Offset de la sombra
-    shadowOpacity: 0.3, // Opacidad de la sombra
-    shadowRadius: 10, // Radio de difusión de la sombra
+    width: '95%',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    borderRadius: 25,
+    padding: 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
   },
   title: {
-    fontSize: 45, // Tamaño de fuente del título
-    fontWeight: 'bold', // Negrita
-    color: '#4165D5', // Azul claro
-    marginBottom: 15, // Margen inferior
-    textAlign: 'center', // Alinear texto al centro
-    textShadowColor: 'rgba(0, 0, 0, 0.3)', // Sombra al título
-    textShadowOffset: { width: 2, height: 2 }, // Offset de la sombra
-    textShadowRadius: 4, // Radio de la sombra
-    zIndex: 1, // Asegura que el título esté por encima
+    fontSize: 45,
+    fontWeight: 'bold',
+    color: '#4165D5',
+    marginBottom: 15,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 26, // Tamaño de fuente del subtítulo
-    color: '#4165D5', // Azul claro
-    marginBottom: 50, // Margen inferior
-    textAlign: 'center', // Alinear texto al centro
-    textShadowColor: 'rgba(0, 0, 0, 0.7)', // Hacer la sombra más oscura para resaltar el texto
-    textShadowOffset: { width: 3, height: 3 }, // Offset de la sombra
-    textShadowRadius: 6, // Radio de la sombra
-    zIndex: 1, // Asegura que el subtítulo esté por encima
+    fontSize: 26,
+    color: '#4165D5',
+    marginBottom: 50,
+    textAlign: 'center',
   },
   iconContainer: {
-    width: 180, // Ancho del contenedor del icono
-    height: 180, // Alto del contenedor del icono
-    borderRadius: 90, // Bordes redondeados para formar un círculo
-    borderWidth: 7, // Grosor del borde
-    borderColor: '#4165D5', // Color del borde
-    alignItems: 'center', // Alinear icono horizontalmente al centro
-    justifyContent: 'center', // Alinear icono verticalmente al centro
-    marginBottom: 50, // Margen inferior
-    zIndex: 1, // Asegura que el icono esté por encima
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    borderWidth: 7,
+    borderColor: '#4165D5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 50,
   },
-  icon: {
-    fontSize: 110, // Tamaño del emoji del perro
+  iconImage: {
+    width: 150, // Incrementado para hacer el logo más grande
+    height: 150, // Incrementado para hacer el logo más grande
+    resizeMode: 'contain', // Para que la imagen se ajuste bien dentro del círculo
   },
   button: {
-    backgroundColor: '#F1AC20', // Color de fondo del botón
-    borderRadius: 35, // Bordes redondeados
-    paddingVertical: 20, // Relleno vertical
-    paddingHorizontal: 60, // Relleno horizontal
-    marginVertical: 25, // Margen vertical
-    zIndex: 1, // Asegura que el botón esté por encima
+    backgroundColor: '#F1AC20',
+    borderRadius: 35,
+    paddingVertical: 20,
+    paddingHorizontal: 60,
+    marginVertical: 25,
   },
   buttonText: {
-    color: '#FFFFFF', // Color del texto del botón
-    fontSize: 22, // Tamaño de fuente del texto
-    fontWeight: 'bold', // Negrita
-    textAlign: 'center', // Alinear texto al centro
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   footerContainer: {
-    marginTop: 30, // Margen superior
-    alignItems: 'center', // Alinear elementos horizontalmente al centro
-  },
-  privacyNotice: {
-    fontSize: 16, // Tamaño de fuente del aviso de privacidad
-    color: '#293855', // Color del texto
-    textDecorationLine: 'underline', // Subrayado
-    marginBottom: 5, // Margen inferior
-    textAlign: 'center', // Alinear texto al centro
+    marginTop: 30,
+    alignItems: 'center',
   },
   footer: {
-    fontSize: 14, // Tamaño de fuente del pie de página
-    color: '#293855', // Color del texto
-    textAlign: 'center', // Centrar el texto de derechos reservados
+    fontSize: 14,
+    color: '#293855',
+    textAlign: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  scrollViewContent: {
+    paddingVertical: 20,
+  },
+  termsText: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: '#293855',
+    textAlign: 'justify',
+  },
+  acceptButton: {
+    backgroundColor: '#4165D5',
+    padding: 10,
+    borderRadius: 5,
+    alignSelf: 'center',
+    marginTop: 20,
+  },
+  acceptButtonText: {
+    color: 'white',
+    fontSize: 18,
   },
 });
 
-export default App; // Exportar el componente App para su uso en otras partes de la aplicación
+export default App;
